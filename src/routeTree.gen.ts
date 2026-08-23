@@ -10,33 +10,270 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CommanderRouteImport } from './routes/commander'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as PersonnelRouteImport } from './routes/personnel'
+import { Route as WelfareRouteImport } from './routes/welfare'
+import { Route as AdminAuditLogsRouteImport } from './routes/admin.audit-logs'
+import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as CommanderAnalyticsRouteImport } from './routes/commander.analytics'
+import { Route as CommanderDashboardRouteImport } from './routes/commander.dashboard'
+import { Route as PersonnelAssessmentRouteImport } from './routes/personnel.assessment'
+import { Route as PersonnelDashboardRouteImport } from './routes/personnel.dashboard'
+import { Route as PersonnelPrivacyRouteImport } from './routes/personnel.privacy'
+import { Route as PersonnelSupportRouteImport } from './routes/personnel.support'
+import { Route as PersonnelTrendsRouteImport } from './routes/personnel.trends'
+import { Route as WelfareAlertsRouteImport } from './routes/welfare.alerts'
+import { Route as WelfareDashboardRouteImport } from './routes/welfare.dashboard'
+import { Route as WelfareInterventionsRouteImport } from './routes/welfare.interventions'
+import { Route as WelfarePersonnelIndexRouteImport } from './routes/welfare.personnel.index'
+import { Route as WelfarePersonnelIdRouteImport } from './routes/welfare.personnel.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommanderRoute = CommanderRouteImport.update({
+  id: '/commander',
+  path: '/commander',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PersonnelRoute = PersonnelRouteImport.update({
+  id: '/personnel',
+  path: '/personnel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WelfareRoute = WelfareRouteImport.update({
+  id: '/welfare',
+  path: '/welfare',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAuditLogsRoute = AdminAuditLogsRouteImport.update({
+  id: '/audit-logs',
+  path: '/audit-logs',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRoute,
+} as any)
+const CommanderAnalyticsRoute = CommanderAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => CommanderRoute,
+} as any)
+const CommanderDashboardRoute = CommanderDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => CommanderRoute,
+} as any)
+const PersonnelAssessmentRoute = PersonnelAssessmentRouteImport.update({
+  id: '/assessment',
+  path: '/assessment',
+  getParentRoute: () => PersonnelRoute,
+} as any)
+const PersonnelDashboardRoute = PersonnelDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => PersonnelRoute,
+} as any)
+const PersonnelPrivacyRoute = PersonnelPrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => PersonnelRoute,
+} as any)
+const PersonnelSupportRoute = PersonnelSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => PersonnelRoute,
+} as any)
+const PersonnelTrendsRoute = PersonnelTrendsRouteImport.update({
+  id: '/trends',
+  path: '/trends',
+  getParentRoute: () => PersonnelRoute,
+} as any)
+const WelfareAlertsRoute = WelfareAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => WelfareRoute,
+} as any)
+const WelfareDashboardRoute = WelfareDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => WelfareRoute,
+} as any)
+const WelfareInterventionsRoute = WelfareInterventionsRouteImport.update({
+  id: '/interventions',
+  path: '/interventions',
+  getParentRoute: () => WelfareRoute,
+} as any)
+const WelfarePersonnelIndexRoute = WelfarePersonnelIndexRouteImport.update({
+  id: '/personnel/',
+  path: '/personnel/',
+  getParentRoute: () => WelfareRoute,
+} as any)
+const WelfarePersonnelIdRoute = WelfarePersonnelIdRouteImport.update({
+  id: '/personnel/$id',
+  path: '/personnel/$id',
+  getParentRoute: () => WelfareRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/commander': typeof CommanderRouteWithChildren
+  '/login': typeof LoginRoute
+  '/personnel': typeof PersonnelRouteWithChildren
+  '/welfare': typeof WelfareRouteWithChildren
+  '/admin/audit-logs': typeof AdminAuditLogsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/commander/analytics': typeof CommanderAnalyticsRoute
+  '/commander/dashboard': typeof CommanderDashboardRoute
+  '/personnel/assessment': typeof PersonnelAssessmentRoute
+  '/personnel/dashboard': typeof PersonnelDashboardRoute
+  '/personnel/privacy': typeof PersonnelPrivacyRoute
+  '/personnel/support': typeof PersonnelSupportRoute
+  '/personnel/trends': typeof PersonnelTrendsRoute
+  '/welfare/alerts': typeof WelfareAlertsRoute
+  '/welfare/dashboard': typeof WelfareDashboardRoute
+  '/welfare/interventions': typeof WelfareInterventionsRoute
+  '/welfare/personnel/$id': typeof WelfarePersonnelIdRoute
+  '/welfare/personnel/': typeof WelfarePersonnelIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/commander': typeof CommanderRouteWithChildren
+  '/login': typeof LoginRoute
+  '/personnel': typeof PersonnelRouteWithChildren
+  '/welfare': typeof WelfareRouteWithChildren
+  '/admin/audit-logs': typeof AdminAuditLogsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/commander/analytics': typeof CommanderAnalyticsRoute
+  '/commander/dashboard': typeof CommanderDashboardRoute
+  '/personnel/assessment': typeof PersonnelAssessmentRoute
+  '/personnel/dashboard': typeof PersonnelDashboardRoute
+  '/personnel/privacy': typeof PersonnelPrivacyRoute
+  '/personnel/support': typeof PersonnelSupportRoute
+  '/personnel/trends': typeof PersonnelTrendsRoute
+  '/welfare/alerts': typeof WelfareAlertsRoute
+  '/welfare/dashboard': typeof WelfareDashboardRoute
+  '/welfare/interventions': typeof WelfareInterventionsRoute
+  '/welfare/personnel/$id': typeof WelfarePersonnelIdRoute
+  '/welfare/personnel': typeof WelfarePersonnelIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/commander': typeof CommanderRouteWithChildren
+  '/login': typeof LoginRoute
+  '/personnel': typeof PersonnelRouteWithChildren
+  '/welfare': typeof WelfareRouteWithChildren
+  '/admin/audit-logs': typeof AdminAuditLogsRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/commander/analytics': typeof CommanderAnalyticsRoute
+  '/commander/dashboard': typeof CommanderDashboardRoute
+  '/personnel/assessment': typeof PersonnelAssessmentRoute
+  '/personnel/dashboard': typeof PersonnelDashboardRoute
+  '/personnel/privacy': typeof PersonnelPrivacyRoute
+  '/personnel/support': typeof PersonnelSupportRoute
+  '/personnel/trends': typeof PersonnelTrendsRoute
+  '/welfare/alerts': typeof WelfareAlertsRoute
+  '/welfare/dashboard': typeof WelfareDashboardRoute
+  '/welfare/interventions': typeof WelfareInterventionsRoute
+  '/welfare/personnel/$id': typeof WelfarePersonnelIdRoute
+  '/welfare/personnel/': typeof WelfarePersonnelIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/commander'
+    | '/login'
+    | '/personnel'
+    | '/welfare'
+    | '/admin/audit-logs'
+    | '/admin/dashboard'
+    | '/commander/analytics'
+    | '/commander/dashboard'
+    | '/personnel/assessment'
+    | '/personnel/dashboard'
+    | '/personnel/privacy'
+    | '/personnel/support'
+    | '/personnel/trends'
+    | '/welfare/alerts'
+    | '/welfare/dashboard'
+    | '/welfare/interventions'
+    | '/welfare/personnel/$id'
+    | '/welfare/personnel/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/commander'
+    | '/login'
+    | '/personnel'
+    | '/welfare'
+    | '/admin/audit-logs'
+    | '/admin/dashboard'
+    | '/commander/analytics'
+    | '/commander/dashboard'
+    | '/personnel/assessment'
+    | '/personnel/dashboard'
+    | '/personnel/privacy'
+    | '/personnel/support'
+    | '/personnel/trends'
+    | '/welfare/alerts'
+    | '/welfare/dashboard'
+    | '/welfare/interventions'
+    | '/welfare/personnel/$id'
+    | '/welfare/personnel'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/commander'
+    | '/login'
+    | '/personnel'
+    | '/welfare'
+    | '/admin/audit-logs'
+    | '/admin/dashboard'
+    | '/commander/analytics'
+    | '/commander/dashboard'
+    | '/personnel/assessment'
+    | '/personnel/dashboard'
+    | '/personnel/privacy'
+    | '/personnel/support'
+    | '/personnel/trends'
+    | '/welfare/alerts'
+    | '/welfare/dashboard'
+    | '/welfare/interventions'
+    | '/welfare/personnel/$id'
+    | '/welfare/personnel/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  CommanderRoute: typeof CommanderRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  PersonnelRoute: typeof PersonnelRouteWithChildren
+  WelfareRoute: typeof WelfareRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +285,214 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/commander': {
+      id: '/commander'
+      path: '/commander'
+      fullPath: '/commander'
+      preLoaderRoute: typeof CommanderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/personnel': {
+      id: '/personnel'
+      path: '/personnel'
+      fullPath: '/personnel'
+      preLoaderRoute: typeof PersonnelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/welfare': {
+      id: '/welfare'
+      path: '/welfare'
+      fullPath: '/welfare'
+      preLoaderRoute: typeof WelfareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/audit-logs': {
+      id: '/admin/audit-logs'
+      path: '/audit-logs'
+      fullPath: '/admin/audit-logs'
+      preLoaderRoute: typeof AdminAuditLogsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/commander/analytics': {
+      id: '/commander/analytics'
+      path: '/analytics'
+      fullPath: '/commander/analytics'
+      preLoaderRoute: typeof CommanderAnalyticsRouteImport
+      parentRoute: typeof CommanderRoute
+    }
+    '/commander/dashboard': {
+      id: '/commander/dashboard'
+      path: '/dashboard'
+      fullPath: '/commander/dashboard'
+      preLoaderRoute: typeof CommanderDashboardRouteImport
+      parentRoute: typeof CommanderRoute
+    }
+    '/personnel/assessment': {
+      id: '/personnel/assessment'
+      path: '/assessment'
+      fullPath: '/personnel/assessment'
+      preLoaderRoute: typeof PersonnelAssessmentRouteImport
+      parentRoute: typeof PersonnelRoute
+    }
+    '/personnel/dashboard': {
+      id: '/personnel/dashboard'
+      path: '/dashboard'
+      fullPath: '/personnel/dashboard'
+      preLoaderRoute: typeof PersonnelDashboardRouteImport
+      parentRoute: typeof PersonnelRoute
+    }
+    '/personnel/privacy': {
+      id: '/personnel/privacy'
+      path: '/privacy'
+      fullPath: '/personnel/privacy'
+      preLoaderRoute: typeof PersonnelPrivacyRouteImport
+      parentRoute: typeof PersonnelRoute
+    }
+    '/personnel/support': {
+      id: '/personnel/support'
+      path: '/support'
+      fullPath: '/personnel/support'
+      preLoaderRoute: typeof PersonnelSupportRouteImport
+      parentRoute: typeof PersonnelRoute
+    }
+    '/personnel/trends': {
+      id: '/personnel/trends'
+      path: '/trends'
+      fullPath: '/personnel/trends'
+      preLoaderRoute: typeof PersonnelTrendsRouteImport
+      parentRoute: typeof PersonnelRoute
+    }
+    '/welfare/alerts': {
+      id: '/welfare/alerts'
+      path: '/alerts'
+      fullPath: '/welfare/alerts'
+      preLoaderRoute: typeof WelfareAlertsRouteImport
+      parentRoute: typeof WelfareRoute
+    }
+    '/welfare/dashboard': {
+      id: '/welfare/dashboard'
+      path: '/dashboard'
+      fullPath: '/welfare/dashboard'
+      preLoaderRoute: typeof WelfareDashboardRouteImport
+      parentRoute: typeof WelfareRoute
+    }
+    '/welfare/interventions': {
+      id: '/welfare/interventions'
+      path: '/interventions'
+      fullPath: '/welfare/interventions'
+      preLoaderRoute: typeof WelfareInterventionsRouteImport
+      parentRoute: typeof WelfareRoute
+    }
+    '/welfare/personnel/': {
+      id: '/welfare/personnel/'
+      path: '/personnel'
+      fullPath: '/welfare/personnel/'
+      preLoaderRoute: typeof WelfarePersonnelIndexRouteImport
+      parentRoute: typeof WelfareRoute
+    }
+    '/welfare/personnel/$id': {
+      id: '/welfare/personnel/$id'
+      path: '/personnel/$id'
+      fullPath: '/welfare/personnel/$id'
+      preLoaderRoute: typeof WelfarePersonnelIdRouteImport
+      parentRoute: typeof WelfareRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminAuditLogsRoute: typeof AdminAuditLogsRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAuditLogsRoute: AdminAuditLogsRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface CommanderRouteChildren {
+  CommanderAnalyticsRoute: typeof CommanderAnalyticsRoute
+  CommanderDashboardRoute: typeof CommanderDashboardRoute
+}
+
+const CommanderRouteChildren: CommanderRouteChildren = {
+  CommanderAnalyticsRoute: CommanderAnalyticsRoute,
+  CommanderDashboardRoute: CommanderDashboardRoute,
+}
+
+const CommanderRouteWithChildren = CommanderRoute._addFileChildren(
+  CommanderRouteChildren,
+)
+
+interface PersonnelRouteChildren {
+  PersonnelAssessmentRoute: typeof PersonnelAssessmentRoute
+  PersonnelDashboardRoute: typeof PersonnelDashboardRoute
+  PersonnelPrivacyRoute: typeof PersonnelPrivacyRoute
+  PersonnelSupportRoute: typeof PersonnelSupportRoute
+  PersonnelTrendsRoute: typeof PersonnelTrendsRoute
+}
+
+const PersonnelRouteChildren: PersonnelRouteChildren = {
+  PersonnelAssessmentRoute: PersonnelAssessmentRoute,
+  PersonnelDashboardRoute: PersonnelDashboardRoute,
+  PersonnelPrivacyRoute: PersonnelPrivacyRoute,
+  PersonnelSupportRoute: PersonnelSupportRoute,
+  PersonnelTrendsRoute: PersonnelTrendsRoute,
+}
+
+const PersonnelRouteWithChildren = PersonnelRoute._addFileChildren(
+  PersonnelRouteChildren,
+)
+
+interface WelfareRouteChildren {
+  WelfareAlertsRoute: typeof WelfareAlertsRoute
+  WelfareDashboardRoute: typeof WelfareDashboardRoute
+  WelfareInterventionsRoute: typeof WelfareInterventionsRoute
+  WelfarePersonnelIdRoute: typeof WelfarePersonnelIdRoute
+  WelfarePersonnelIndexRoute: typeof WelfarePersonnelIndexRoute
+}
+
+const WelfareRouteChildren: WelfareRouteChildren = {
+  WelfareAlertsRoute: WelfareAlertsRoute,
+  WelfareDashboardRoute: WelfareDashboardRoute,
+  WelfareInterventionsRoute: WelfareInterventionsRoute,
+  WelfarePersonnelIdRoute: WelfarePersonnelIdRoute,
+  WelfarePersonnelIndexRoute: WelfarePersonnelIndexRoute,
+}
+
+const WelfareRouteWithChildren =
+  WelfareRoute._addFileChildren(WelfareRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
+  CommanderRoute: CommanderRouteWithChildren,
+  LoginRoute: LoginRoute,
+  PersonnelRoute: PersonnelRouteWithChildren,
+  WelfareRoute: WelfareRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
