@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Lightbulb, ShieldCheck, Users } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
@@ -5,14 +6,16 @@ import { StatCard } from "@/components/StatCard";
 import { PrototypeNote } from "@/components/PrototypeNote";
 import { SimpleBarChart, TrendChart } from "@/components/charts";
 import { Button } from "@/components/ui/button";
+import { listUnits } from "@/services/personnelService";
 import {
-  COMMANDER_SUMMARY,
-  DEPLOYMENT_DISTRIBUTION,
-  FATIGUE_INDICATORS,
-  LEAVE_UTILISATION,
-  UNIT_TREND,
-  WORKLOAD_TREND,
-} from "@/data/mockData";
+  getCommanderSummary,
+  getDeploymentDistribution,
+  getFatigueIndicators,
+  getLeaveUtilisation,
+  getUnitTrends,
+  getWorkloadTrend,
+} from "@/services/riskService";
+import type { Unit } from "@/types";
 
 export const Route = createFileRoute("/commander/dashboard")({
   head: () => ({
@@ -34,6 +37,42 @@ export const Route = createFileRoute("/commander/dashboard")({
 });
 
 function CommanderDashboard() {
+  const [summary, setSummary] = useState<{ total: number; low: number; moderate: number; high: number; critical: number } | null>(null);
+  const [units, setUnits] = useState<Unit[]>([]);
+  const [workload, setWorkload] = useState<object[]>([]);
+  const [fatigue, setFatigue] = useState<object[]>([]);
+  const [deployment, setDeployment] = useState<object[]>([]);
+  const [leave, setLeave] = useState<object[]>([]);
+  const [unitTrends, setUnitTrends] = useState<object[]>([]);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    Promise.all([
+      getCommanderSummary(),
+      listUnits(),
+      getWorkloadTrend(),
+      getFatigueIndicators(),
+      getDeploymentDistribution(),
+      getLeaveUtilisation(),
+      getUnitTrends(),
+    ])
+      .then(([summaryData, unitsData, workloadData, fatigueData, deploymentData, leaveData, trendsData]) => {
+        setSummary(summaryData);
+        setUnits(unitsData);
+        setWorkload(workloadData);
+        setFatigue(fatigueData);
+        setDeployment(deploymentData);
+        setLeave(leaveData);
+        setUnitTrends(trendsData);
+      })
+      .catch(() => setError("Unable to load live command data."));
+  }, []);
+
+  const currentUnit = units.reduce<Unit | undefined>(
+    (highest, unit) => (!highest || unit.averageRisk > highest.averageRisk ? unit : highest),
+    undefined,
+  );
+
   return (
     <>
       <PageHeader
@@ -56,12 +95,13 @@ function CommanderDashboard() {
         </p>
       </div>
 
+      {error ? <p className="mb-4 rounded-lg bg-destructive/8 px-3 py-2 text-sm text-destructive">{error}</p> : null}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <StatCard label="Personnel" value={COMMANDER_SUMMARY.total} icon={Users} />
-        <StatCard label="Low Risk" value={COMMANDER_SUMMARY.low} accent="low" />
-        <StatCard label="Moderate" value={COMMANDER_SUMMARY.moderate} accent="moderate" />
-        <StatCard label="High" value={COMMANDER_SUMMARY.high} accent="high" />
-        <StatCard label="Critical" value={COMMANDER_SUMMARY.critical} accent="critical" />
+        <StatCard label="Personnel" value={summary?.total ?? "—"} icon={Users} />
+        <StatCard label="Low Risk" value={summary?.low ?? "—"} accent="low" />
+        <StatCard label="Moderate" value={summary?.moderate ?? "—"} accent="moderate" />
+        <StatCard label="High" value={summary?.high ?? "—"} accent="high" />
+        <StatCard label="Critical" value={summary?.critical ?? "—"} accent="critical" />
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
@@ -70,7 +110,7 @@ function CommanderDashboard() {
           <p className="mt-1 text-sm text-muted-foreground">Average welfare risk by unit</p>
           <div className="mt-4">
             <TrendChart
-              data={UNIT_TREND}
+              data={unitTrends}
               yDomain={[0, 100]}
               series={[
                 { key: "unitA", label: "Unit A", color: "var(--risk-low)" },
@@ -84,13 +124,12 @@ function CommanderDashboard() {
 
         <section className="panel p-6">
           <h2 className="font-display text-base font-semibold">Workload trend</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Average monthly duty hours vs target</p>
+          <p className="mt-1 text-sm text-muted-foreground">Average monthly duty hours recorded</p>
           <div className="mt-4">
             <TrendChart
-              data={WORKLOAD_TREND}
+              data={workload}
               series={[
                 { key: "hours", label: "Duty hours", color: "var(--navy)" },
-                { key: "target", label: "Target", color: "var(--risk-low)" },
               ]}
             />
           </div>
@@ -101,7 +140,7 @@ function CommanderDashboard() {
           <p className="mt-1 text-sm text-muted-foreground">Personnel by continuous deployment</p>
           <div className="mt-4">
             <SimpleBarChart
-              data={DEPLOYMENT_DISTRIBUTION}
+              data={deployment}
               xKey="band"
               dataKey="personnel"
               color="var(--navy)"
@@ -110,13 +149,13 @@ function CommanderDashboard() {
         </section>
 
         <section className="panel p-6">
-          <h2 className="font-display text-base font-semibold">Leave utilisation</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Percentage of entitlement used</p>
+          <h2 className="font-display text-base font-semibold">Average leave days taken</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Average recorded leave days by unit</p>
           <div className="mt-4">
             <SimpleBarChart
-              data={LEAVE_UTILISATION}
+              data={leave}
               xKey="unit"
-              dataKey="utilised"
+              dataKey="daysTaken"
               color="var(--teal)"
             />
           </div>
@@ -125,14 +164,13 @@ function CommanderDashboard() {
         <section className="panel p-6 xl:col-span-2">
           <h2 className="font-display text-base font-semibold">Fatigue indicators</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Average night shifts and reported sleep-deficit days per person
+            Recorded night shifts by month; sleep-deficit history is unavailable
           </p>
           <div className="mt-4">
             <TrendChart
-              data={FATIGUE_INDICATORS}
+              data={fatigue}
               series={[
                 { key: "nightShifts", label: "Night shifts", color: "var(--risk-high)" },
-                { key: "sleepDeficit", label: "Sleep-deficit days", color: "var(--risk-moderate)" },
               ]}
             />
           </div>
@@ -147,19 +185,19 @@ function CommanderDashboard() {
         <ul className="mt-4 space-y-2.5 text-sm">
           <li className="flex gap-2">
             <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-risk-high" />
-            Average workload increased 18% this month.
+            {currentUnit ? `${currentUnit.name} has the highest current average risk at ${currentUnit.averageRisk}.` : "Current unit risk is unavailable."}
           </li>
           <li className="flex gap-2">
             <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-risk-moderate" />
-            Unit B shows increasing fatigue indicators.
+            {units.find((unit) => unit.trend === "Increasing")?.name || "No unit is currently marked as increasing"} shows increasing fatigue indicators.
           </li>
           <li className="flex gap-2">
             <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-risk-low" />
-            Unit A wellness indicators remain stable.
+            {units.find((unit) => unit.trend === "Stable")?.name || "No stable unit is currently recorded"} wellness indicators remain stable.
           </li>
         </ul>
         <p className="mt-5 rounded-lg bg-surface px-4 py-3 text-sm font-medium">
-          Recommendation: Review duty distribution for Unit B.
+          Recommendation: {currentUnit ? `Review duty distribution for ${currentUnit.name}.` : "No recommendation is available."}
         </p>
       </section>
 

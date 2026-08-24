@@ -1,4 +1,5 @@
 import type { Role } from "@/types";
+import { apiFetch } from "./api";
 
 export interface DemoUser {
   role: Role;
@@ -27,9 +28,37 @@ export const ROLE_HOME: Record<Role, string> = {
   admin: "/admin/dashboard",
 };
 
-export async function signInDemo(role: Role): Promise<DemoUser> {
-  await new Promise((r) => setTimeout(r, 450));
-  return DEMO_USERS[role];
+export async function signInDemo(
+  role: Role,
+  serviceId = DEMO_USERS[role].serviceId,
+  password = "demo-access",
+): Promise<DemoUser> {
+  try {
+    const demo = DEMO_USERS[role];
+    const res = await apiFetch("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({
+        serviceId,
+        password,
+        role,
+      }),
+    });
+
+    if (res?.accessToken) {
+      localStorage.setItem("sentinelwell.token", res.accessToken);
+    }
+    return {
+      role: res?.user?.role || role,
+      displayName: res?.user?.displayName || demo.displayName,
+      serviceId: res?.user?.serviceId || demo.serviceId,
+    };
+  } catch (err) {
+    if (typeof err === "object" && err !== null && "status" in err) {
+      throw err;
+    }
+    console.warn("Backend auth call fallback to local demo user", err);
+    return { ...DEMO_USERS[role], serviceId };
+  }
 }
 
 export function getDemoUser(role: Role): DemoUser {

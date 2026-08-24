@@ -16,8 +16,10 @@ export function AppLayout({ role, children }: { role: Role; children: ReactNode 
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
-    if (sessionRole === null) setRole(role);
-  }, [sessionRole, role, setRole]);
+    if (sessionRole !== role) {
+      navigate({ to: "/login", replace: true });
+    }
+  }, [navigate, role, sessionRole]);
 
   useEffect(() => {
     setOpen(false);
@@ -25,6 +27,8 @@ export function AppLayout({ role, children }: { role: Role; children: ReactNode 
 
   const user = getDemoUser(role);
   const items = NAV[role];
+
+  if (sessionRole !== role) return null;
 
   const sidebar = (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">

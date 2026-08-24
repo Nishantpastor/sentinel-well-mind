@@ -1,0 +1,239 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique // PERSONNEL, WELFARE_OFFICER, COMMANDER, ADMIN
+  description String?
+  users       User[]
+  createdAt   DateTime @default(now())
+}
+
+model User {
+  id            String         @id @default(uuid())
+  serviceId     String         @unique
+  displayName   String
+  passwordHash  String
+  roleId        String
+  role          Role           @relation(fields: [roleId], references: [id])
+  personnel     Personnel?
+  interventions Intervention[] @relation("OfficerInterventions")
+  auditLogs     AuditLog[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Unit {
+  id             String      @id @default(uuid())
+  name           String      @unique
+  personnelCount Int         @default(0)
+  averageRisk    Float       @default(0)
+  band           String      @default("LOW") // LOW, MODERATE, HIGH, CRITICAL
+  trend          String      @default("Stable") // Stable, Increasing, Decreasing
+  personnel      Personnel[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Personnel {
+  id                  String               @id // e.g. "P-1024"
+  userId              String?              @unique
+  user                User?                @relation(fields: [userId], references: [id])
+  unitId              String
+  unit                Unit                 @relation(fields: [unitId], references: [id])
+  rankRole            String               // e.g. "Section Commander"
+  riskScore           Int                  @default(0)
+  previousScore       Int                  @default(0)
+  band                String               @default("LOW") // LOW, MODERATE, HIGH, CRITICAL
+  trend               String               @default("Stable") // Stable, Increasing, Decreasing
+  indicatorsJson      String               @default("[]")
+  lastAssessment      String               @default("Recently")
+  deploymentDays      Int                  @default(0)
+  nightShifts         Int                  @default(0)
+  leaveTaken          Int                  @default(0)
+  dutyRecords         DutyRecord[]
+  deploymentRecords   DeploymentRecord[]
+  leaveRecords        LeaveRecord[]
+  trainingRecords     TrainingRecord[]
+  wellnessAssessments WellnessAssessment[]
+  riskAssessments     RiskAssessment[]
+  alerts              Alert[]
+  interventions       Intervention[]       @relation("PersonnelInterventions")
+  supportRequests     SupportRequest[]
+  privacyConsent      PrivacyConsent?
+  notifications       Notification[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+}
+
+model DutyRecord {
+  id            String    @id @default(uuid())
+  personnelId   String
+  personnel     Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  date          DateTime  @default(now())
+  month         String    // e.g. "Jan"
+  dutyHours     Int
+  shiftType     String    @default("Day")
+  isNightShift  Boolean   @default(false)
+  workloadScore Int       @default(3)
+  createdAt     DateTime  @default(now())
+}
+
+model DeploymentRecord {
+  id             String    @id @default(uuid())
+  personnelId    String
+  personnel      Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  location       String
+  startDate      DateTime
+  endDate        DateTime?
+  deploymentType String
+  status         String    @default("Active")
+  durationDays   Int
+  createdAt      DateTime  @default(now())
+}
+
+model LeaveRecord {
+  id          String    @id @default(uuid())
+  personnelId String
+  personnel   Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  startDate   DateTime
+  endDate     DateTime
+  leaveType   String
+  status      String    @default("Approved")
+  daysTaken   Int
+  createdAt   DateTime  @default(now())
+}
+
+model TrainingRecord {
+  id            String    @id @default(uuid())
+  personnelId   String
+  personnel     Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  trainingName  String
+  trainingLoad  Int       @default(3)
+  durationHours Int
+  date          DateTime
+  completed     Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+}
+
+model WellnessAssessment {
+  id               String    @id @default(uuid())
+  personnelId      String
+  personnel        Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  stressScore      Int
+  sleepScore       Int
+  energyScore      Int
+  workloadScore    Int
+  exhaustionLevel  String?
+  workLifeBalance  String?
+  supportRequested Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+}
+
+model RiskAssessment {
+  id           String       @id @default(uuid())
+  personnelId  String
+  personnel    Personnel    @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  riskScore    Int
+  riskBand     String
+  trend        String
+  modelVersion String       @default("v1.0.0-prototype")
+  factors      RiskFactor[]
+  createdAt    DateTime     @default(now())
+}
+
+model RiskFactor {
+  id               String         @id @default(uuid())
+  riskAssessmentId String
+  riskAssessment   RiskAssessment @relation(fields: [riskAssessmentId], references: [id], onDelete: Cascade)
+  label            String
+  value            Int            // 0-100 score
+}
+
+model Alert {
+  id                String    @id // e.g. "AL-4401"
+  personnelId       String
+  personnel         Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  unitName          String
+  alertType         String
+  severity          String    // LOW, MODERATE, HIGH, CRITICAL
+  score             Int
+  previousScore     Int
+  detectedChanges   String    @default("[]")
+  recommendation    String
+  raisedAt          DateTime  @default(now())
+  raisedAtFormatted String    @default("Today")
+  acknowledged      Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+}
+
+model Intervention {
+  id               String    @id // e.g. "IN-201"
+  personnelId      String
+  personnel        Personnel @relation("PersonnelInterventions", fields: [personnelId], references: [id], onDelete: Cascade)
+  officerUserId    String?
+  officerUser      User?     @relation("OfficerInterventions", fields: [officerUserId], references: [id])
+  officerName      String    @default("Welfare Officer")
+  band             String    // LOW, MODERATE, HIGH, CRITICAL
+  interventionType String
+  date             DateTime  @default(now())
+  dateFormatted    String    @default("Today")
+  status           String    @default("Pending") // Pending, In Progress, Completed, Follow-up Required
+  followUpDate     String    @default("—")
+  restricted       Boolean   @default(true)
+  notes            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model SupportRequest {
+  id          String    @id @default(uuid())
+  personnelId String
+  personnel   Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  reference   String    @unique // e.g. "SR-8492"
+  status      String    @default("PENDING")
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model PrivacyConsent {
+  id                     String    @id @default(uuid())
+  personnelId            String    @unique
+  personnel              Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  wellnessData           Boolean   @default(true)
+  optionalData           Boolean   @default(true)
+  analyticsParticipation Boolean   @default(true)
+  biometricData          Boolean   @default(false) // MANDATORY Privacy: disabled in prototype
+  updatedAt              DateTime  @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  userName  String   // e.g. "Welfare Officer"
+  action    String   // e.g. "Viewed Risk Profile"
+  resource  String   // e.g. "P-1024"
+  result    String   // "Authorized" | "Denied"
+  ipAddress String?
+  metadata  String?
+  timestamp DateTime @default(now())
+}
+
+model Notification {
+  id          String     @id @default(uuid())
+  personnelId String?
+  personnel   Personnel? @relation(fields: [personnelId], references: [id])
+  title       String
+  detail      String
+  time        String
+  read        Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+}

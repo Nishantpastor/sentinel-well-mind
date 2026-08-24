@@ -5,28 +5,62 @@ import {
   RISK_TREND,
 } from "@/data/mockData";
 import type { Recommendation } from "@/types";
-
-const delay = (ms = 300) => new Promise((r) => setTimeout(r, ms));
+import { apiFetch } from "./api";
 
 export async function getOrgSummary() {
-  await delay();
-  return ORG_SUMMARY;
+  try {
+    return await apiFetch("/analytics/org-summary");
+  } catch (err) {
+    console.warn("Backend getOrgSummary call fallback to mockData", err);
+    return ORG_SUMMARY;
+  }
 }
 
 export async function getCommanderSummary() {
-  await delay();
-  return COMMANDER_SUMMARY;
+  try {
+    return await apiFetch("/analytics/commander-summary");
+  } catch (err) {
+    console.warn("Backend getCommanderSummary call fallback to mockData", err);
+    return COMMANDER_SUMMARY;
+  }
 }
 
 export async function getRiskTrend() {
-  await delay();
-  return RISK_TREND;
+  try {
+    return await apiFetch("/analytics/risk-trend");
+  } catch (err) {
+    console.warn("Backend getRiskTrend call fallback to mockData", err);
+    return RISK_TREND;
+  }
+}
+
+export async function getWorkloadTrend() {
+  return apiFetch("/analytics/workload");
+}
+
+export async function getFatigueIndicators() {
+  return apiFetch("/analytics/fatigue");
+}
+
+export async function getDeploymentDistribution() {
+  return apiFetch("/analytics/deployment");
+}
+
+export async function getLeaveUtilisation() {
+  return apiFetch("/analytics/leave");
+}
+
+export async function getUnitTrends() {
+  return apiFetch("/analytics/unit-trends");
 }
 
 export async function getRecommendations(personnelId: string): Promise<Recommendation[]> {
-  await delay(250);
-  void personnelId;
-  return RECOMMENDATIONS;
+  try {
+    return await apiFetch<Recommendation[]>(`/risk/recommendations/${personnelId}`);
+  } catch (err) {
+    console.warn(`Backend getRecommendations(${personnelId}) call fallback to mockData`, err);
+    return RECOMMENDATIONS;
+  }
 }
 
 export function explainRisk(personnelId: string) {

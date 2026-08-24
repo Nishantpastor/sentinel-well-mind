@@ -1,9 +1,12 @@
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/PageHeader";
 import { RiskBadge } from "@/components/RiskBadge";
 import { PrototypeNote } from "@/components/PrototypeNote";
 import { RiskDistributionChart, SimpleBarChart, TrendChart } from "@/components/charts";
-import { COMMANDER_SUMMARY, LEAVE_UTILISATION, UNITS, UNIT_TREND } from "@/data/mockData";
+import { listUnits } from "@/services/personnelService";
+import { getCommanderSummary, getLeaveUtilisation, getUnitTrends } from "@/services/riskService";
+import type { Unit } from "@/types";
 
 export const Route = createFileRoute("/commander/analytics")({
   head: () => ({
@@ -24,11 +27,33 @@ export const Route = createFileRoute("/commander/analytics")({
 });
 
 function CommanderAnalytics() {
+  const [summary, setSummary] = useState<{
+    low: number;
+    moderate: number;
+    high: number;
+    critical: number;
+  } | null>(null);
+  const [units, setUnits] = useState<Unit[]>([]);
+  const [leave, setLeave] = useState<object[]>([]);
+  const [unitTrends, setUnitTrends] = useState<object[]>([]);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    Promise.all([getCommanderSummary(), listUnits(), getLeaveUtilisation(), getUnitTrends()])
+      .then(([summaryData, unitsData, leaveData, trendsData]) => {
+        setSummary(summaryData);
+        setUnits(unitsData);
+        setLeave(leaveData);
+        setUnitTrends(trendsData);
+      })
+      .catch(() => setError("Unable to load live analytics data."));
+  }, []);
+
   const distribution = [
-    { name: "Low", value: COMMANDER_SUMMARY.low, color: "var(--risk-low)" },
-    { name: "Moderate", value: COMMANDER_SUMMARY.moderate, color: "var(--risk-moderate)" },
-    { name: "High", value: COMMANDER_SUMMARY.high, color: "var(--risk-high)" },
-    { name: "Critical", value: COMMANDER_SUMMARY.critical, color: "var(--risk-critical)" },
+    { name: "Low", value: summary?.low ?? 0, color: "var(--risk-low)" },
+    { name: "Moderate", value: summary?.moderate ?? 0, color: "var(--risk-moderate)" },
+    { name: "High", value: summary?.high ?? 0, color: "var(--risk-high)" },
+    { name: "Critical", value: summary?.critical ?? 0, color: "var(--risk-critical)" },
   ];
 
   return (
@@ -37,6 +62,11 @@ function CommanderAnalytics() {
         title="Unit Analytics"
         subtitle="Anonymised aggregate analysis · no individual wellness records displayed."
       />
+      {error ? (
+        <p className="mb-4 rounded-lg bg-destructive/8 px-3 py-2 text-sm text-destructive">
+          {error}
+        </p>
+      ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
         <section className="panel p-6">
@@ -46,10 +76,10 @@ function CommanderAnalytics() {
           </div>
         </section>
         <section className="panel p-6">
-          <h2 className="font-display text-lg font-semibold">Average risk by unit</h2>
+          <h2 className="font-display text-lg font-semibold">Current average risk by unit</h2>
           <div className="mt-4">
             <TrendChart
-              data={UNIT_TREND}
+              data={unitTrends}
               height={260}
               yDomain={[0, 100]}
               series={[
@@ -65,27 +95,27 @@ function CommanderAnalytics() {
 
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
         <section className="panel p-6">
-          <h2 className="font-display text-lg font-semibold">Leave utilisation by unit</h2>
+          <h2 className="font-display text-lg font-semibold">Average leave days taken by unit</h2>
           <div className="mt-4">
-            <SimpleBarChart data={LEAVE_UTILISATION} xKey="unit" dataKey="utilised" color="var(--teal)" />
+            <SimpleBarChart data={leave} xKey="unit" dataKey="daysTaken" color="var(--teal)" />
           </div>
         </section>
         <section className="panel p-6">
           <h2 className="font-display text-lg font-semibold">Unit standing</h2>
           <ul className="mt-4 divide-y divide-border">
-            {UNITS.map((u) => (
-              <li key={u.id} className="flex items-center justify-between gap-4 py-3">
+            {units.map((unit) => (
+              <li key={unit.id} className="flex items-center justify-between gap-4 py-3">
                 <div>
-                  <p className="font-medium">{u.name}</p>
+                  <p className="font-medium">{unit.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {u.personnel} personnel · trend {u.trend.toLowerCase()}
+                    {unit.personnel} personnel · trend {unit.trend.toLowerCase()}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="font-display text-lg font-semibold tabular-nums">
-                    {u.averageRisk}
+                    {unit.averageRisk}
                   </span>
-                  <RiskBadge band={u.band} size="sm" />
+                  <RiskBadge band={unit.band} size="sm" />
                 </div>
               </li>
             ))}

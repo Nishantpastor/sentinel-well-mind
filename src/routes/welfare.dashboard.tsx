@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { listPersonnel, listUnits } from "@/services/personnelService";
 import { getOrgSummary, getRiskTrend } from "@/services/riskService";
+import { apiFetch } from "@/services/api";
 import type { Personnel, Unit } from "@/types";
 
 export const Route = createFileRoute("/welfare/dashboard")({
@@ -69,11 +70,22 @@ function WelfareDashboard() {
     return () => timers.current.forEach((t) => window.clearTimeout(t));
   }, []);
 
-  function runSimulation() {
+  async function runSimulation() {
     if (simStep >= 0 && !simDone) return;
     setSimDone(false);
     setSimStep(0);
     timers.current.forEach((t) => window.clearTimeout(t));
+
+    // Call backend API to persist simulation state and alert creation
+    try {
+      await apiFetch("/simulation/increasing-stress", {
+        method: "POST",
+        body: JSON.stringify({ personnelId: "P-1024" }),
+      });
+    } catch (e) {
+      console.warn("Simulation backend sync warning:", e);
+    }
+
     timers.current = SIM_STEPS.map((_, i) =>
       window.setTimeout(() => {
         setSimStep(i + 1);

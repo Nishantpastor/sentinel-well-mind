@@ -48,10 +48,15 @@ function LoginPage() {
     }
     setError("");
     setLoading(true);
-    const user = await signInDemo(role);
-    setRole(user.role);
-    setLoading(false);
-    navigate({ to: ROLE_HOME[user.role] });
+    try {
+      const user = await signInDemo(role, serviceId.trim(), password);
+      setRole(user.role);
+      navigate({ to: ROLE_HOME[user.role] });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to sign in.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

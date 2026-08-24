@@ -155,7 +155,7 @@ export function RiskDistributionChart({
               {d.value.toLocaleString()}
             </span>
             <span className="w-14 text-right text-sm font-semibold tabular-nums">
-              {((d.value / total) * 100).toFixed(1)}%
+              {total > 0 ? `${((d.value / total) * 100).toFixed(1)}%` : "—"}
             </span>
           </li>
         ))}
