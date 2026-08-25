@@ -568,7 +568,7 @@ demo = gr.Interface(
     description="Explainable machine learning risk scoring powered by LightGBM & SHAP.",
 )
 
-# Mount FastAPI REST endpoints onto Gradio's underlying app
+# Mount all FastAPI REST API routes directly into Gradio's internal FastAPI app
 app = gr.mount_gradio_app(app, demo, path="/gradio")
 
 # ----------------- STATIC FRONTEND SERVING -----------------
@@ -590,5 +590,4 @@ if DIST_DIR.exists():
 
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+    demo.launch()
