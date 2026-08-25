@@ -10,6 +10,14 @@ os.environ["GRADIO_SSR_MODE"] = "False"
 import matplotlib
 matplotlib.use("Agg")
 
+try:
+    import spaces
+    @spaces.GPU
+    def zero_gpu_initializer():
+        return True
+except Exception:
+    pass
+
 import gradio as gr
 import joblib
 import numpy as np
