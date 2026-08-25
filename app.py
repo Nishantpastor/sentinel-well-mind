@@ -4,6 +4,9 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+# Disable Gradio Node.js SSR proxy to prevent port binding collisions
+os.environ["GRADIO_SSR_MODE"] = "False"
+
 import gradio as gr
 import joblib
 import numpy as np
@@ -590,4 +593,4 @@ if DIST_DIR.exists():
 
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(ssr_mode=False)
