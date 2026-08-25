@@ -12,11 +12,13 @@ matplotlib.use("Agg")
 
 try:
     import spaces
-    @spaces.GPU
-    def zero_gpu_initializer():
-        return True
-except Exception:
-    pass
+except ImportError:
+    class _Spaces:
+        @staticmethod
+        def GPU(function):
+            return function
+
+    spaces = _Spaces()
 
 # Gradio 5.0.0 imports HfFolder, which newer huggingface_hub releases removed.
 import huggingface_hub
@@ -554,6 +556,7 @@ def get_privacy_consent():
 
 
 # ----------------- GRADIO DEMO TAB (OPTIONAL UI / HF EMBED) -----------------
+@spaces.GPU
 def gradio_predict(duty_hours, night_shifts, deployment_days, leave_days, stress_score, sleep_score):
     inp = LegacyRiskPredictionInput(
         dutyHours=duty_hours,
