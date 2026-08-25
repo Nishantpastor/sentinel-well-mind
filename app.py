@@ -7,6 +7,9 @@ from typing import Any, Dict, List, Optional
 # Disable Gradio Node.js SSR proxy to prevent port binding collisions
 os.environ["GRADIO_SSR_MODE"] = "False"
 
+import matplotlib
+matplotlib.use("Agg")
+
 import gradio as gr
 import joblib
 import numpy as np
