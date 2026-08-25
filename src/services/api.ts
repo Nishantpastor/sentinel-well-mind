@@ -1,4 +1,5 @@
-const BASE_URL = (import.meta.env as Record<string, string>)["VITE_API_URL"] || "/api";
+const BASE_URL = (import.meta.env as Record<string, string>)["VITE_API_URL"] ||
+  "https://sentinelwell-api.onrender.com/api";
 
 export async function apiFetch<T = any>(
   endpoint: string,
