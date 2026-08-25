@@ -24,8 +24,7 @@ import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 # Locate models directory
@@ -585,23 +584,9 @@ demo = gr.Interface(
 # Mount all FastAPI REST API routes directly into Gradio's internal FastAPI app
 app = gr.mount_gradio_app(app, demo, path="/gradio")
 
-# ----------------- STATIC FRONTEND SERVING -----------------
-DIST_DIR = BASE_DIR / "dist"
-
-if DIST_DIR.exists():
-    if (DIST_DIR / "assets").exists():
-        app.mount("/assets", StaticFiles(directory=str(DIST_DIR / "assets")), name="assets")
-
-    @app.get("/{full_path:path}")
-    async def serve_spa(full_path: str):
-        file_path = DIST_DIR / full_path
-        if file_path.exists() and file_path.is_file():
-            return FileResponse(file_path)
-        index_file = DIST_DIR / "index.html"
-        if index_file.exists():
-            return FileResponse(index_file)
-        return {"message": "SentinelWell API & ML Engine Running. Access /gradio for testing UI."}
-
-
 if __name__ == "__main__":
-    demo.launch(ssr_mode=False)
+    demo.launch(
+        server_name="0.0.0.0",
+        server_port=int(os.getenv("PORT", "7860")),
+        ssr_mode=False,
+    )
