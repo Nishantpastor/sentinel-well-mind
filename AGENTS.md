@@ -1,10 +1,5 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-<!-- LOVABLE:END -->
+# SentinelWell Development Guidelines
+
+- Ensure clean code architecture across Frontend, Express Backend, and Python ML Service.
+- Maintain responsive UI with Tailwind CSS and TanStack components.
+- Keep ML inference and risk factor explanations explainable and privacy-compliant.

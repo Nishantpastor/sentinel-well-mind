@@ -1,4 +1,4 @@
-const BASE_URL = (import.meta.env as Record<string, string>)["VITE_API_URL"] || "http://localhost:5000/api";
+const BASE_URL = (import.meta.env as Record<string, string>)["VITE_API_URL"] || "/api";
 
 export async function apiFetch<T = any>(
   endpoint: string,

@@ -1,42 +1,20 @@
+---
+title: Sentinel Well Mind
+emoji: 🛡️
+colorFrom: blue
+colorTo: indigo
+sdk: gradio
+app_file: app.py
+pinned: false
+---
+
 # SentinelWell AI
 
-BUILD: SentinelWell — AI Personnel Stress & Welfare Monitoring System
 
-Build a polished, production-quality frontend-only MVP called SentinelWell.
+SentinelWell is an intelligent personnel stress, fatigue, and welfare monitoring platform designed for CAPFs, Armed Forces, police organizations, disaster-response teams, and other high-stress workforces.
 
-This is an AI-powered personnel stress, fatigue, and welfare monitoring platform designed for CAPFs, Armed Forces, police organizations, disaster-response teams, and other high-stress workforces.
+It provides early warning indicators of stress, fatigue, and burnout risk while maintaining personnel privacy, operational confidentiality, and explainable decision-support recommendations.
 
-CRITICAL INSTRUCTION
-
-I have a limited Lovable credit budget.
-
-Therefore:
-
-Build ONLY the frontend.
-
-Use realistic local/mock data.
-
-DO NOT build a backend.
-
-DO NOT create a database.
-
-DO NOT integrate external APIs.
-
-DO NOT implement real ML.
-
-DO NOT implement real biometric data.
-
-DO NOT implement HRMS integration.
-
-DO NOT implement real authentication.
-
-DO NOT add unnecessary features.
-
-Do not repeatedly regenerate existing components.
-
-Keep the architecture clean so a Node.js/Express + PostgreSQL + Python ML backend can be connected later.
-
-The goal is to create a high-quality hackathon-ready frontend prototype that convincingly demonstrates the complete welfare-monitoring workflow.
 
 1. CORE PRODUCT IDEA
 
@@ -1360,23 +1338,10 @@ PostgreSQL
 Python ML Service
 
 
-Start by building the complete frontend structure and core pages described above.
-
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://sentinel-well-mind.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/5bacf92b-7cc5-4de2-9fe5-fbe2787995ac).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Prefer working locally? You need Node.js and npm:
+
 
 ```sh
 git clone <this-repository-url>
