@@ -575,25 +575,106 @@ def gradio_predict(duty_hours, night_shifts, deployment_days, leave_days, stress
     )
 
 
-demo = gr.Interface(
-    fn=gradio_predict,
-    inputs=[
-        gr.Slider(100, 300, value=210, label="Monthly Duty Hours"),
-        gr.Slider(0, 30, value=15, step=1, label="Night Shifts (30d)"),
-        gr.Slider(0, 365, value=120, step=1, label="Deployment Duration (Days)"),
-        gr.Slider(0, 30, value=3, step=1, label="Leave Days Taken"),
-        gr.Slider(1, 10, value=6, step=1, label="Self-Reported Stress (1-10)"),
-        gr.Slider(1, 5, value=3, step=1, label="Sleep Quality (1-5)"),
-    ],
-    outputs=[
-        gr.Label(label="Risk Assessment Band & Score"),
-        gr.Textbox(label="Risk Velocity Trend"),
-        gr.Textbox(label="Explainable AI Summary"),
-        gr.Label(label="Factor Influences"),
-    ],
-    title="🛡️ SentinelWell AI - Personnel Welfare Risk Predictor",
-    description="Explainable machine learning risk scoring powered by LightGBM & SHAP.",
-)
+def personnel_table_rows():
+    return [
+        [p["id"], p["unit"], p["role"], p["r"][-1], band_for_score(p["r"][-1]), p["lastAssessment"]]
+        for p in RAW_PERSONNEL
+    ]
+
+
+def alert_table_rows():
+    return [
+        [alert.get("id", ""), alert.get("personnelId", ""), alert.get("severity", ""), alert.get("type", "")]
+        for alert in ALERTS
+    ]
+
+
+def intervention_table_rows():
+    return [
+        [item.get("id", ""), item.get("personnelId", ""), item.get("type", ""), item.get("status", "")]
+        for item in INTERVENTIONS
+    ]
+
+
+def unit_table_rows():
+    return [
+        [item["unit"], item["personnelCount"], item["averageRisk"], item["band"], item["trend"]]
+        for item in get_unit_analytics()["data"]
+    ]
+
+
+with gr.Blocks(title="SentinelWell AI") as demo:
+    gr.Markdown("# SentinelWell AI\nPersonnel welfare intelligence and explainable risk support")
+
+    with gr.Tabs():
+        with gr.Tab("Personnel"):
+            gr.Markdown("## Personnel Dashboard\nReview your current welfare indicators and submit a private assessment.")
+            gr.Dataframe(
+                headers=["Service ID", "Unit", "Role", "Risk Score", "Band", "Last Assessment"],
+                value=personnel_table_rows()[:1],
+                interactive=False,
+            )
+            gr.Markdown("Use the Risk Assessment tab to record current duty, sleep, and stress indicators.")
+
+        with gr.Tab("Welfare Officer"):
+            gr.Markdown("## Welfare Operations\nMonitor alerts, personnel risk, and active support interventions.")
+            gr.Dataframe(
+                headers=["Service ID", "Unit", "Role", "Risk Score", "Band", "Last Assessment"],
+                value=personnel_table_rows(),
+                interactive=False,
+            )
+            gr.Markdown("### Active Alerts")
+            gr.Dataframe(
+                headers=["Alert ID", "Personnel ID", "Severity", "Message"],
+                value=alert_table_rows(),
+                interactive=False,
+            )
+            gr.Markdown("### Interventions")
+            gr.Dataframe(
+                headers=["Intervention ID", "Personnel ID", "Type", "Status"],
+                value=intervention_table_rows(),
+                interactive=False,
+            )
+
+        with gr.Tab("Commander"):
+            gr.Markdown("## Command Analytics\nView aggregated unit-level welfare trends without exposing unnecessary personal detail.")
+            gr.Dataframe(
+                headers=["Unit", "Personnel Count", "Average Risk", "Band", "Trend"],
+                value=unit_table_rows(),
+                interactive=False,
+            )
+
+        with gr.Tab("Administrator"):
+            gr.Markdown("## Administration\nSystem status, demo access identities, and privacy controls.")
+            gr.Dataframe(
+                headers=["Demo ID", "Role", "Display Name"],
+                value=[[key, value["role"], value["displayName"]] for key, value in DEMO_USERS.items()],
+                interactive=False,
+            )
+            gr.Markdown("API health: healthy\nModel policy: explainable decision support, not medical diagnosis\nBiometric data: disabled by default")
+
+        with gr.Tab("Risk Assessment"):
+            gr.Markdown("## Personnel Welfare Risk Predictor\nExplainable machine learning risk scoring powered by LightGBM and SHAP.")
+            with gr.Row():
+                duty_hours = gr.Slider(100, 300, value=210, label="Monthly Duty Hours")
+                night_shifts = gr.Slider(0, 30, value=15, step=1, label="Night Shifts (30d)")
+            with gr.Row():
+                deployment_days = gr.Slider(0, 365, value=120, step=1, label="Deployment Duration (Days)")
+                leave_days = gr.Slider(0, 30, value=3, step=1, label="Leave Days Taken")
+            with gr.Row():
+                stress_score = gr.Slider(1, 10, value=6, step=1, label="Self-Reported Stress (1-10)")
+                sleep_score = gr.Slider(1, 5, value=3, step=1, label="Sleep Quality (1-5)")
+            assess_button = gr.Button("Submit Assessment", variant="primary")
+            with gr.Row():
+                risk_output = gr.Textbox(label="Risk Assessment Band & Score")
+                trend_output = gr.Textbox(label="Risk Velocity Trend")
+            explanation_output = gr.Textbox(label="Explainable AI Summary")
+            factors_output = gr.Label(label="Factor Influences")
+            assess_button.click(
+                fn=gradio_predict,
+                inputs=[duty_hours, night_shifts, deployment_days, leave_days, stress_score, sleep_score],
+                outputs=[risk_output, trend_output, explanation_output, factors_output],
+            )
 
 # Mount all FastAPI REST API routes directly into Gradio's internal FastAPI app
 app = gr.mount_gradio_app(app, demo, path="/gradio")
