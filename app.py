@@ -18,6 +18,17 @@ try:
 except Exception:
     pass
 
+# Gradio 5.0.0 imports HfFolder, which newer huggingface_hub releases removed.
+import huggingface_hub
+
+if not hasattr(huggingface_hub, "HfFolder"):
+    class HfFolder:
+        @staticmethod
+        def get_token():
+            return huggingface_hub.get_token()
+
+    huggingface_hub.HfFolder = HfFolder
+
 import gradio as gr
 import joblib
 import numpy as np
