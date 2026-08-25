@@ -15,6 +15,8 @@ dist-ssr
 .tanstack/**
 .nitro
 .venv
+__pycache__/
+*.pyc
 *.local
 
 # Environment secrets
