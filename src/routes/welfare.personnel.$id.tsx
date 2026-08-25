@@ -36,13 +36,15 @@ function PersonnelDetail() {
   const { id } = Route.useParams();
   const [person, setPerson] = useState<Personnel | null>(null);
   const [recs, setRecs] = useState<Recommendation[]>([]);
+  const [explanation, setExplanation] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([getPersonnel(id), getRecommendations(id)]).then(([p, r]) => {
+    Promise.all([getPersonnel(id), getRecommendations(id), explainRisk(id)]).then(([p, r, exp]) => {
       setPerson(p ?? null);
       setRecs(r);
+      setExplanation(exp);
       setLoading(false);
     });
   }, [id]);
@@ -62,7 +64,7 @@ function PersonnelDetail() {
       <div className="panel p-12 text-center">
         <h1 className="font-display text-xl font-semibold">Personnel record not found</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {id} is not available in this prototype dataset.
+          {id} is not available in the database.
         </p>
         <Button asChild className="mt-5" variant="outline">
           <Link to="/welfare/personnel">Back to personnel</Link>
@@ -139,7 +141,7 @@ function PersonnelDetail() {
               <BrainCircuit className="size-5 text-teal" />
               <h2 className="font-display text-lg font-semibold">Why is this risk elevated?</h2>
             </div>
-            <p className="mt-3 text-sm leading-relaxed">{explainRisk(person.id)}</p>
+            <p className="mt-3 text-sm leading-relaxed">{explanation}</p>
             <div className="mt-4 flex gap-3 rounded-lg bg-surface p-4">
               <Info className="mt-0.5 size-4 shrink-0 text-navy" />
               <div>

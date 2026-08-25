@@ -1,37 +1,16 @@
-import {
-  COMMANDER_SUMMARY,
-  ORG_SUMMARY,
-  RECOMMENDATIONS,
-  RISK_TREND,
-} from "@/data/mockData";
 import type { Recommendation } from "@/types";
 import { apiFetch } from "./api";
 
 export async function getOrgSummary() {
-  try {
-    return await apiFetch("/analytics/org-summary");
-  } catch (err) {
-    console.warn("Backend getOrgSummary call fallback to mockData", err);
-    return ORG_SUMMARY;
-  }
+  return apiFetch("/analytics/org-summary");
 }
 
 export async function getCommanderSummary() {
-  try {
-    return await apiFetch("/analytics/commander-summary");
-  } catch (err) {
-    console.warn("Backend getCommanderSummary call fallback to mockData", err);
-    return COMMANDER_SUMMARY;
-  }
+  return apiFetch("/analytics/commander-summary");
 }
 
 export async function getRiskTrend() {
-  try {
-    return await apiFetch("/analytics/risk-trend");
-  } catch (err) {
-    console.warn("Backend getRiskTrend call fallback to mockData", err);
-    return RISK_TREND;
-  }
+  return apiFetch("/analytics/risk-trend");
 }
 
 export async function getWorkloadTrend() {
@@ -55,14 +34,10 @@ export async function getUnitTrends() {
 }
 
 export async function getRecommendations(personnelId: string): Promise<Recommendation[]> {
-  try {
-    return await apiFetch<Recommendation[]>(`/risk/recommendations/${personnelId}`);
-  } catch (err) {
-    console.warn(`Backend getRecommendations(${personnelId}) call fallback to mockData`, err);
-    return RECOMMENDATIONS;
-  }
+  return apiFetch<Recommendation[]>(`/risk/recommendations/${personnelId}`);
 }
 
-export function explainRisk(personnelId: string) {
-  return `AI analysis indicates elevated welfare risk for ${personnelId}, primarily associated with increased duty hours, frequent night shifts, prolonged deployment, declining sleep quality, and increasing self-reported stress.`;
+export async function explainRisk(personnelId: string): Promise<string> {
+  const res = await apiFetch<{ explanation: string }>(`/risk/explain/${personnelId}`);
+  return res?.explanation || `AI analysis indicates elevated welfare risk for ${personnelId}.`;
 }

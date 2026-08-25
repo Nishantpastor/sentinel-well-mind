@@ -15,10 +15,6 @@ export async function apiFetch<T = any>(
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
-  if (role) {
-    headers["x-demo-role"] = role;
-    headers["x-demo-service-id"] = role === "welfare" ? "WO-208" : role === "commander" ? "CO-014" : role === "admin" ? "AD-001" : "P-1024";
-  }
 
   const url = endpoint.startsWith("http") ? endpoint : `${BASE_URL}${endpoint.startsWith("/") ? "" : "/"}${endpoint}`;
 

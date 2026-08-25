@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { PrototypeNote } from "@/components/PrototypeNote";
 import { Input } from "@/components/ui/input";
-import { AUDIT_LOGS } from "@/data/mockData";
+import { Skeleton } from "@/components/ui/skeleton";
+import { listAuditLogs, type AuditLogItem } from "@/services/adminService";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/audit-logs")({
@@ -27,9 +28,21 @@ export const Route = createFileRoute("/admin/audit-logs")({
 
 function AuditLogs() {
   const [query, setQuery] = useState("");
-  const rows = AUDIT_LOGS.filter((l) =>
-    `${l.user} ${l.action} ${l.resource}`.toLowerCase().includes(query.toLowerCase()),
-  );
+  const [logs, setLogs] = useState<AuditLogItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    listAuditLogs(query)
+      .then((data) => {
+        setLogs(data || []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : "Unable to load audit logs");
+        setLoading(false);
+      });
+  }, [query]);
 
   return (
     <>
@@ -47,7 +60,17 @@ function AuditLogs() {
           />
         </div>
 
-        {rows.length === 0 ? (
+        {error ? (
+          <p className="mb-4 rounded-lg bg-destructive/8 px-3 py-2 text-sm text-destructive">{error}</p>
+        ) : null}
+
+        {loading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full rounded-lg" />
+            ))}
+          </div>
+        ) : logs.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
             No log entries match this search.
           </div>
@@ -64,7 +87,7 @@ function AuditLogs() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((l) => (
+                {logs.map((l) => (
                   <tr key={l.id} className="border-b border-border last:border-0 hover:bg-surface/70">
                     <td className="px-4 py-3 font-medium">{l.user}</td>
                     <td className="px-4 py-3">{l.action}</td>

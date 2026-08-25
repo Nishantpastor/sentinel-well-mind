@@ -33,32 +33,23 @@ export async function signInDemo(
   serviceId = DEMO_USERS[role].serviceId,
   password = "demo-access",
 ): Promise<DemoUser> {
-  try {
-    const demo = DEMO_USERS[role];
-    const res = await apiFetch("/auth/login", {
-      method: "POST",
-      body: JSON.stringify({
-        serviceId,
-        password,
-        role,
-      }),
-    });
+  const res = await apiFetch("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({
+      serviceId,
+      password,
+      role,
+    }),
+  });
 
-    if (res?.accessToken) {
-      localStorage.setItem("sentinelwell.token", res.accessToken);
-    }
-    return {
-      role: res?.user?.role || role,
-      displayName: res?.user?.displayName || demo.displayName,
-      serviceId: res?.user?.serviceId || demo.serviceId,
-    };
-  } catch (err) {
-    if (typeof err === "object" && err !== null && "status" in err) {
-      throw err;
-    }
-    console.warn("Backend auth call fallback to local demo user", err);
-    return { ...DEMO_USERS[role], serviceId };
+  if (res?.accessToken) {
+    localStorage.setItem("sentinelwell.token", res.accessToken);
   }
+  return {
+    role: res?.user?.role || role,
+    displayName: res?.user?.displayName || `User ${serviceId}`,
+    serviceId: res?.user?.serviceId || serviceId,
+  };
 }
 
 export function getDemoUser(role: Role): DemoUser {

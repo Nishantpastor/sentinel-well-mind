@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Activity, BatteryCharging, HeartPulse, Moon, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
@@ -6,7 +7,10 @@ import { WellnessCheckIn } from "@/components/WellnessCheckIn";
 import { PrototypeNote } from "@/components/PrototypeNote";
 import { AreaTrendChart } from "@/components/charts";
 import { Button } from "@/components/ui/button";
-import { MY_SERIES } from "@/data/mockData";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getMyTrends } from "@/services/wellnessService";
+import { getMyProfile } from "@/services/personnelService";
+import type { MonthlySeries, Personnel } from "@/types";
 
 export const Route = createFileRoute("/personnel/dashboard")({
   head: () => ({
@@ -28,6 +32,26 @@ export const Route = createFileRoute("/personnel/dashboard")({
 });
 
 function PersonnelDashboard() {
+  const [series, setSeries] = useState<MonthlySeries[]>([]);
+  const [profile, setProfile] = useState<Personnel | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([getMyTrends(), getMyProfile()])
+      .then(([t, p]) => {
+        setSeries(t || []);
+        setProfile(p || null);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const latest = series.length > 0 ? series[series.length - 1] : null;
+  const stressVal = latest?.stress ?? 4;
+  const sleepVal = latest?.sleep ?? 4;
+  const riskVal = profile?.riskScore ?? (latest?.risk ?? 38);
+  const wellnessScore = 100 - riskVal;
+
   return (
     <>
       <PageHeader
@@ -42,12 +66,20 @@ function PersonnelDashboard() {
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Wellness Score" value="78 / 100" sublabel="Good" icon={HeartPulse} accent="low" />
-        <StatCard label="Stress" value="4 / 10" sublabel="Moderate" icon={Activity} accent="moderate" />
-        <StatCard label="Sleep" value="4 / 5" sublabel="Good" icon={Moon} accent="low" />
-        <StatCard label="Energy" value="4 / 5" sublabel="Good" icon={BatteryCharging} accent="low" />
-      </div>
+      {loading ? (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 w-full rounded-xl" />
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard label="Wellness Score" value={`${wellnessScore} / 100`} sublabel={wellnessScore >= 60 ? "Good" : "Needs Attention"} icon={HeartPulse} accent={wellnessScore >= 60 ? "low" : "high"} />
+          <StatCard label="Stress" value={`${stressVal} / 10`} sublabel={stressVal <= 4 ? "Low" : stressVal <= 7 ? "Moderate" : "High"} icon={Activity} accent={stressVal <= 4 ? "low" : "moderate"} />
+          <StatCard label="Sleep" value={`${sleepVal} / 5`} sublabel={sleepVal >= 4 ? "Good" : "Fair"} icon={Moon} accent={sleepVal >= 4 ? "low" : "moderate"} />
+          <StatCard label="Energy" value="4 / 5" sublabel="Good" icon={BatteryCharging} accent="low" />
+        </div>
+      )}
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.4fr_1fr]">
         <WellnessCheckIn />
@@ -56,7 +88,11 @@ function PersonnelDashboard() {
             <h2 className="font-display text-base font-semibold">Your 6-month wellness trend</h2>
             <p className="mt-1 text-sm text-muted-foreground">Self-reported stress indicators</p>
             <div className="mt-4">
-              <AreaTrendChart data={MY_SERIES} dataKey="stress" color="var(--risk-high)" height={180} />
+              {loading ? (
+                <Skeleton className="h-[180px] w-full rounded-xl" />
+              ) : (
+                <AreaTrendChart data={series} dataKey="stress" color="var(--risk-high)" height={180} />
+              )}
             </div>
             <Button asChild variant="ghost" className="mt-2 px-0">
               <Link to="/personnel/trends">

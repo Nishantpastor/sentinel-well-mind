@@ -1,9 +1,12 @@
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Lightbulb, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { PrototypeNote } from "@/components/PrototypeNote";
 import { TrendChart } from "@/components/charts";
-import { MY_SERIES } from "@/data/mockData";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getMyTrends } from "@/services/wellnessService";
+import type { MonthlySeries } from "@/types";
 
 export const Route = createFileRoute("/personnel/trends")({
   head: () => ({
@@ -42,6 +45,18 @@ function Panel({
 }
 
 function TrendsPage() {
+  const [series, setSeries] = useState<MonthlySeries[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getMyTrends()
+      .then((data) => {
+        setSeries(data || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
   return (
     <>
       <PageHeader
@@ -68,36 +83,44 @@ function TrendsPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <Panel title="Stress Trend" subtitle="Self-reported, scale 1–10">
-          <TrendChart
-            data={MY_SERIES}
-            series={[{ key: "stress", label: "Stress", color: "var(--risk-high)" }]}
-            yDomain={[0, 10]}
-          />
-        </Panel>
-        <Panel title="Sleep Trend" subtitle="Self-reported quality, scale 1–5">
-          <TrendChart
-            data={MY_SERIES}
-            series={[{ key: "sleep", label: "Sleep", color: "var(--teal)" }]}
-            yDomain={[0, 5]}
-          />
-        </Panel>
-        <Panel title="Workload Trend" subtitle="Perceived workload, scale 1–5">
-          <TrendChart
-            data={MY_SERIES}
-            series={[{ key: "workload", label: "Workload", color: "var(--risk-moderate)" }]}
-            yDomain={[0, 5]}
-          />
-        </Panel>
-        <Panel title="Wellness Risk" subtitle="Composite prototype welfare risk score">
-          <TrendChart
-            data={MY_SERIES}
-            series={[{ key: "risk", label: "Welfare risk", color: "var(--navy)" }]}
-            yDomain={[0, 100]}
-          />
-        </Panel>
-      </div>
+      {loading ? (
+        <div className="grid gap-6 xl:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-64 w-full rounded-xl" />
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-6 xl:grid-cols-2">
+          <Panel title="Stress Trend" subtitle="Self-reported, scale 1–10">
+            <TrendChart
+              data={series}
+              series={[{ key: "stress", label: "Stress", color: "var(--risk-high)" }]}
+              yDomain={[0, 10]}
+            />
+          </Panel>
+          <Panel title="Sleep Trend" subtitle="Self-reported quality, scale 1–5">
+            <TrendChart
+              data={series}
+              series={[{ key: "sleep", label: "Sleep", color: "var(--teal)" }]}
+              yDomain={[0, 5]}
+            />
+          </Panel>
+          <Panel title="Workload Trend" subtitle="Perceived workload, scale 1–5">
+            <TrendChart
+              data={series}
+              series={[{ key: "workload", label: "Workload", color: "var(--risk-moderate)" }]}
+              yDomain={[0, 5]}
+            />
+          </Panel>
+          <Panel title="Wellness Risk" subtitle="Composite prototype welfare risk score">
+            <TrendChart
+              data={series}
+              series={[{ key: "risk", label: "Welfare risk", color: "var(--navy)" }]}
+              yDomain={[0, 100]}
+            />
+          </Panel>
+        </div>
+      )}
 
       <PrototypeNote />
     </>
