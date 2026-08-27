@@ -1,0 +1,10 @@
+# Ignore backend and ML service from Vercel frontend builds
+backend/
+ml-service/
+*.py
+*.pkl
+*.h5
+requirements.txt
+runtime.txt
+Pipfile
+Pipfile.lock
