@@ -86,8 +86,12 @@ export function AppLayout({ role, children }: { role: Role; children: ReactNode 
           variant="ghost"
           className="w-full justify-start text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-white"
           onClick={() => {
+            if (typeof window !== "undefined") {
+              window.localStorage.removeItem("sentinelwell.role");
+              window.localStorage.removeItem("sentinelwell.token");
+            }
             setRole(null);
-            navigate({ to: "/login" });
+            navigate({ to: "/login", replace: true });
           }}
         >
           <LogOut className="size-4" />

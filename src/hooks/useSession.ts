@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 import type { Role } from "@/types";
 
 const KEY = "sentinelwell.role";
+const TOKEN_KEY = "sentinelwell.token";
 let current: Role | null = null;
 const listeners = new Set<() => void>();
 
@@ -12,8 +13,12 @@ function emit() {
 export function setRole(role: Role | null) {
   current = role;
   if (typeof window !== "undefined") {
-    if (role) window.localStorage.setItem(KEY, role);
-    else window.localStorage.removeItem(KEY);
+    if (role) {
+      window.localStorage.setItem(KEY, role);
+    } else {
+      window.localStorage.removeItem(KEY);
+      window.localStorage.removeItem(TOKEN_KEY);
+    }
   }
   emit();
 }
@@ -24,9 +29,9 @@ function subscribe(cb: () => void) {
 }
 
 function getSnapshot(): Role | null {
-  if (current === null && typeof window !== "undefined") {
+  if (typeof window !== "undefined") {
     const stored = window.localStorage.getItem(KEY) as Role | null;
-    if (stored) current = stored;
+    current = stored;
   }
   return current;
 }
