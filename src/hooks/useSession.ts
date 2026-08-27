@@ -3,7 +3,12 @@ import type { Role } from "@/types";
 
 const KEY = "sentinelwell.role";
 const TOKEN_KEY = "sentinelwell.token";
-let current: Role | null = null;
+
+let current: Role | null =
+  typeof window !== "undefined"
+    ? (window.localStorage.getItem(KEY) as Role | null)
+    : null;
+
 const listeners = new Set<() => void>();
 
 function emit() {
@@ -25,13 +30,29 @@ export function setRole(role: Role | null) {
 
 function subscribe(cb: () => void) {
   listeners.add(cb);
-  return () => listeners.delete(cb);
+  const handleStorage = (e: StorageEvent) => {
+    if (e.key === KEY || e.key === null) {
+      current = (window.localStorage.getItem(KEY) as Role | null);
+      cb();
+    }
+  };
+  if (typeof window !== "undefined") {
+    window.addEventListener("storage", handleStorage);
+  }
+  return () => {
+    listeners.delete(cb);
+    if (typeof window !== "undefined") {
+      window.removeEventListener("storage", handleStorage);
+    }
+  };
 }
 
 function getSnapshot(): Role | null {
   if (typeof window !== "undefined") {
     const stored = window.localStorage.getItem(KEY) as Role | null;
-    current = stored;
+    if (stored !== current) {
+      current = stored;
+    }
   }
   return current;
 }

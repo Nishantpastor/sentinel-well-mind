@@ -16,10 +16,13 @@ export function AppLayout({ role, children }: { role: Role; children: ReactNode 
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
-    if (sessionRole !== role) {
+    if (sessionRole === null) {
       navigate({ to: "/login", replace: true });
+    } else if (sessionRole !== role) {
+      setRole(role);
     }
-  }, [navigate, role, sessionRole]);
+  }, [role, sessionRole, setRole, navigate]);
+>>>>>>> 3dfb400 (Fix AppLayout useEffect sign out redirection and snapshot caching)
 
   useEffect(() => {
     setOpen(false);
